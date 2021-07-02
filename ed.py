@@ -35,6 +35,7 @@ def cmdPrompt(pLines, pIdx) :
   w          save to file/disk
   rr         reload from file/disk
   ll         print all lines
+  m          print next 10 lines
   l          show current file & line
   <num>      show specific line
   ^          show first line
@@ -44,6 +45,7 @@ def cmdPrompt(pLines, pIdx) :
   i,O        insert new line
   a,o        append new line
   r          edit/replace current line
+  d          delete current line
 """)
     print("##> currentFile: " + filepath)
     print("##> lineIndex: " + str(idx+1) + "/" + str(len(lines)))
@@ -56,15 +58,20 @@ def cmdPrompt(pLines, pIdx) :
     for line in lines :
       i += 1;  print(str(i) + ": " + line.strip())
     #
+  elif (cmd=='m') :
+    for line in lines[idx:idx+10] :
+      print(line.strip())
+    #
   elif (cmd=='l') :
     print("##> currentFile: " + filepath)
     print("##> lineIndex: " + str(idx+1) + "/" + str(len(lines)))
     prnLine(lines, idx)
   elif (cmd=='i' or cmd=='O') or (cmd=='a' or cmd=='o') :
+    l = len(lines)
     if (cmd=='a' or cmd=='o') :
-      if len(lines) > 0 : idx += 1
+      if (l > 0) : idx += 1
     #
-    if (idx > len(lines)) :
+    if (idx > l) :
       for x in range(len(lines), idx+1): lines.append("\n")
     else :
       lines.insert(idx, "\n");
@@ -74,6 +81,24 @@ def cmdPrompt(pLines, pIdx) :
     prnLine(lines, idx)
     for x in range(len(lines), idx+1): lines.append("\n") #if (idx >= len(lines))
     lines[idx] = input(str(idx+1) + ": ") + "\n"
+  elif (cmd=='d') :
+    l = len(lines)
+    if (idx==0 and l<=1) :
+      lines = []
+      print("##> all deleted")
+    elif (idx < l) :
+      t = lines[idx]
+      lines.pop(idx);
+      if (idx > 0 and idx > l-2) :
+        print("##deleted##> " + t, end='')
+        idx -= 1
+      else :
+        print("##deleted##> " + t, end='')
+      #
+      prnLine(lines, idx)
+    else :
+      idx = l-1
+    #
   elif (cmd=='w') :
     print("##> currentFile: " + filepath)
     print("##> lineIndex: " + str(idx+1) + "/" + str(len(lines)))
@@ -97,7 +122,8 @@ def cmdPrompt(pLines, pIdx) :
     if (cmd=='^') :
       idx = 0
     elif (cmd=='$') :
-      if (len(lines) > 0) : idx = len(lines)-1
+      l = len(lines)
+      if (l > 0) : idx = l-1
     elif (cmd=='k') :
       if (idx > 0): idx -= 1
     elif (cmd=='j' or cmd=='') :
