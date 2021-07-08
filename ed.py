@@ -26,6 +26,17 @@ def prnLine(lines, idx) :
   printV(txt, end='')
 #
 
+def addLine(lines, idx, txt) :
+  l = len(lines)
+  if (idx > l) :
+    for x in range(l, idx): lines.append("\n")
+    lines.append(txt)
+  else :
+    lines.insert(idx, txt);
+  #
+  return lines
+#
+
 def cmdPrompt(pLines, pIdx) :
   global filepath, lines, idx
   cmd = input("^" + str(pIdx+1) + "> ").strip()
@@ -87,12 +98,19 @@ def cmdPrompt(pLines, pIdx) :
     if (cmd=='a' or cmd=='o') :
       if (l > 0) : idx += 1
     #
-    if (idx > l) :
-      for x in range(len(lines), idx+1): lines.append("\n")
-    else :
-      lines.insert(idx, "\n");
+    lines = addLine(
+      lines, idx, (input(str(idx+1) + ": ") + "\n")
+    )
+
+    if (cmd=='O' or cmd=='o') :
+      print("[multi-line mode. \\z to end]")
+      while True:
+        tmp = input(str(idx+2) + ": ")
+        if (tmp.strip()=="\\z") : break
+        idx += 1
+        lines = addLine(lines, idx, tmp)
+      #
     #
-    lines[idx] = input(str(idx+1) + ": ") + "\n"
   elif (cmd=='r') :
     prnLine(lines, idx)
     for x in range(len(lines), idx+1): lines.append("\n") #if (idx >= len(lines))
@@ -166,9 +184,9 @@ def cmdPrompt(pLines, pIdx) :
 #
 
 def main(argv) :
-  _thisScript_ = sys.argv[0]  ## __file__
+  _thisScript_ = argv[0]  ## __file__
   global filepath, lines, idx
-  filepath = ( sys.argv[1] if (len(sys.argv)>1) else r"B:\a.txt" );
+  filepath = ( argv[1] if (len(argv)>1) else r"B:\a.txt" );
   lines = loadFile(filepath);
   idx = 0;  prnLine(lines, idx)
   while ( cmdPrompt(lines, idx)!="q" ) :
