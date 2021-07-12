@@ -188,7 +188,13 @@ def cmdPrompt(pLines, pIdx) :
 def main(argv) :
   _thisScript_ = argv[0]  ## __file__
   global filepath, lines, idx
-  filepath = ( argv[1] if (len(argv)>1) else r"B:\a.txt" );
+  filepath = ( argv[1] if (len(argv)>1) else r"" );
+  if (filepath=="/?" or filepath=="-?" or filepath=="?" or filepath=="/h" or filepath=="-h" or filepath=="/help" or filepath=="-help") :
+    print("\nSyntax: ed.py [file]")
+    print("\nEnter '?' within the editor's command-line ('^1>') for additional help.")
+    return
+  #
+
   lines = loadFile(filepath);  idx = 0;
   while ( cmdPrompt(lines, idx)!="q" ) :
     pass
