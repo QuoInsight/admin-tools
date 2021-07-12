@@ -9,7 +9,7 @@ def printV(v, end="\n") :
 
 import os
 def loadFile(filepath) :
-  printV(filepath)
+  printV("##> currentFile: " + filepath)
   if os.path.isfile(filepath) :
     with open(filepath, 'r',
       encoding="utf8", errors="replace"
@@ -17,6 +17,8 @@ def loadFile(filepath) :
   else :
     lines = []
   #
+  l = len(lines)
+  print("##> 1/" + str(l) + ": " + (lines[0] if (l>0) else "\n"))
   return lines
 #
 
@@ -78,7 +80,7 @@ def cmdPrompt(pLines, pIdx) :
       printV("!! ERROR !! " + str(e))
       lines = []
     #
-    idx = 0;  prnLine(lines, idx)
+    idx = 0
   elif (cmd=='ll') :
     # printV(''.join(lines))
     i = 0
@@ -176,7 +178,7 @@ def cmdPrompt(pLines, pIdx) :
     confirmed = input("!! WARNING !! quit without saving? [Y/n]> ").strip().lower()
     if not(confirmed=="" or confirmed=="y") : return cmdPrompt(pLines, pIdx)
   elif (cmd=='q!' or cmd=='Q') :
-    pass
+    return "q"
   else :
     printV("##> invalid command !")
   #
@@ -187,8 +189,7 @@ def main(argv) :
   _thisScript_ = argv[0]  ## __file__
   global filepath, lines, idx
   filepath = ( argv[1] if (len(argv)>1) else r"B:\a.txt" );
-  lines = loadFile(filepath);
-  idx = 0;  prnLine(lines, idx)
+  lines = loadFile(filepath);  idx = 0;
   while ( cmdPrompt(lines, idx)!="q" ) :
     pass
   #
