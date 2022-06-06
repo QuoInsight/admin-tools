@@ -4,7 +4,7 @@
 
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
-_,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?.-([^\\/]+)$")
+_,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?(.+)") -- "^@?.-([^\\/]+)$"
 _SupportedFunctions = {"bc", "install", "realpath", "sleep", "usleep"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
