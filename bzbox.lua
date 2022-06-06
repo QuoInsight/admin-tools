@@ -91,9 +91,11 @@ function install(argv)
   src = _LuaScriptSource
   for i = 1, #_SupportedFunctions do
     fnc = _SupportedFunctions[i]
-    cmd = 'ln -s '..src..' /usr/bin/'..fnc
-    print(i..": "..cmd)
-    --os.execute(cmd)
+    if fnc ~= "install" then
+      cmd = 'ln -s '..src..' /usr/bin/'..fnc
+      print(i..": "..cmd)
+      --os.execute(cmd)
+    end
   end
   print(">> Done\n")
 end
