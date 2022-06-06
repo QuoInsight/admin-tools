@@ -1,10 +1,11 @@
 #!/usr/bin/lua
+-- opkg install luasocket
 -- https://github.com/QuoInsight/admin-tools/blob/master/bzbox.lua
 
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
 _,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?.-([^\\/]+)$")
-_SupportedFunctions = {"bc", "install", "sleep", "usleep"}
+_SupportedFunctions = {"bc", "install", "realpath", "sleep", "usleep"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
@@ -55,7 +56,7 @@ ln -s /root/bzbx.lua /usr/bin/bc
     whoami, whois, xargs, xz, xzcat, yes, zcat
 --]]
 
-function about()
+function _about()
   print(string.format([[
 
 A simple Lua script emulating some BusyBox functions/commands
@@ -86,9 +87,27 @@ Currently defined functions:
   print()
 end
 
-function install(argv)
+function _exeCmd(cmdln)
+  local file = assert(io.popen(cmdln, 'r'))
+  local output = file:read('*all')
+  file:close()
+  output = string.gsub(output, "^%s*(.-)%s*$", "%1") --trim
+  return output
+end
+
+function _realpath(filepath)
+  if package.config:sub(1,1)=="/" then -- https://stackoverflow.com/a/14425862
+    -- https://stackoverflow.com/a/31605674
+    cmdln = 'echo "$(cd "$(dirname "'..filepath..'")"; pwd)/$(basename "'..filepath..'")"'
+    return _exeCmd(cmdln)
+  else
+    return filepath
+  end
+end
+
+function install(arg)
   print(">> creating symlinks ...")
-  src = _LuaScriptSource
+  src = _realpath(_LuaScriptSource)
   for i = 1, #_SupportedFunctions do
     fnc = _SupportedFunctions[i]
     if fnc ~= "install" then
@@ -100,8 +119,8 @@ function install(argv)
   print(">> Done\n")
 end
 
-function bc(argv)
-  a = (argv==nil and io.read() or argv) --io.read("*all")
+function bc(arg)
+  a = (arg[1]==nil and io.read() or arg[1]) --io.read("*all")
   a = "return "..a -- a = math.eval(a)
   a = (_LuaVersionNumber>=5.2 and load(a) or loadstring(a))
   print( string.format("%.2f",a()):gsub(r, "%.?0+$", "") )
@@ -110,15 +129,19 @@ function bc(argv)
   print( r )
 end
 
-function sleep(argv)
-  if argv==nil then argv=1 end
-  local socket = require 'socket'
-  socket.sleep(argv)
+function realpath(arg)
+  print( _realpath(arg[1]) )
 end
 
-function usleep(argv)
-  if argv==nil then argv=1 else argv=argv/1000 end
-  sleep(argv)
+function sleep(arg)
+  if arg[1]==nil then arg[1]=1 end
+  local socket = require 'socket'
+  socket.sleep(arg[1])
+end
+
+function usleep(arg)
+  if arg[1]==nil then arg[1]=1 else arg[1]=arg[1]/1000 end
+  sleep(arg)
 end
 
 -- main() --
@@ -132,7 +155,7 @@ if supportedFunctions:find(","..arg[0]..",") == nil then
   _,_,arg[0] = string.find(arg[0], "([^\\/]+)$")
 end
 if supportedFunctions:find(","..arg[0]..",") ~= nil then
-  _G[arg[0]](arg[1]);  os.exit()
+  _G[arg[0]](arg);  os.exit()
 end
 
-about()
+_about()
