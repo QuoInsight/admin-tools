@@ -1,9 +1,10 @@
 #!/usr/bin/lua
+-- https://github.com/QuoInsight/admin-tools/blob/master/bzbox.lua
 
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
 _,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?.-([^\\/]+)$")
-_SupportedFunctions = {"bc", "sleep", "usleep"}
+_SupportedFunctions = {"bc", "install", "sleep", "usleep"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
@@ -101,9 +102,10 @@ function bc(argv)
   a = (argv==nil and io.read() or argv) --io.read("*all")
   a = "return "..a -- a = math.eval(a)
   a = (_LuaVersionNumber>=5.2 and load(a) or loadstring(a))
+  print( string.format("%.2f",a()):gsub(r, "%.?0+$", "") )
   r = string.format("%.2f",a())
   r = string.gsub(r, "%.?0+$", "")
-  return r
+  print( r )
 end
 
 function sleep(argv)
@@ -127,18 +129,8 @@ if supportedFunctions:find(","..arg[0]..",") == nil then
   for i = 0, (#arg-1) do arg[i]=arg[i+1] end; table.remove(arg, #arg)
   _,_,arg[0] = string.find(arg[0], "([^\\/]+)$")
 end
-
-about()
-
-if arg[0]=="bc" then
-  --io.write(">> ")
-  print( bc() );  os.exit()
-elseif arg[0]=="sleep" then
-  sleep(arg[1]);  os.exit()
-elseif arg[0]=="usleep" then
-  usleep(arg[1]);  os.exit()
-elseif arg[0]=="--install" then
-  install(arg[1]);  os.exit()
+if supportedFunctions:find(","..arg[0]..",") ~= nil then
+  _G[arg[0]](arg[1]);  os.exit()
 end
 
 about()
