@@ -98,8 +98,14 @@ end
 function _realpath(filepath)
   if package.config:sub(1,1)=="/" then -- https://stackoverflow.com/a/14425862
     -- https://stackoverflow.com/a/31605674
-    cmdln = 'echo "$(cd "$(dirname "'..filepath..'")"; pwd)/$(basename "'..filepath..'")"'
-    return _exeCmd(cmdln)
+    if filepath==nil or filepath=="" or filepath=="." then
+      return _exeCmd("pwd")
+    elseif filepath==".." then
+      return _exeCmd('echo "$(cd ..; pwd)"')
+    else
+      cmdln = 'echo "$(cd "$(dirname "'..filepath..'")"; pwd)/$(basename "'..filepath..'")"'
+      return _exeCmd(cmdln)
+    end
   else
     return filepath
   end
