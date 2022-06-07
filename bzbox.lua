@@ -5,7 +5,7 @@
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
 _,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?(.+)") -- "^@?.-([^\\/]+)$"
-_SupportedFunctions = {"bc", "install", "realpath", "sleep", "usleep"}
+_SupportedFunctions = {"bc", "cronchk", "install", "realpath", "sleep", "usleep"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
@@ -132,6 +132,72 @@ function bc(arg)
   r = string.format("%.2f",a())
   r = string.gsub(r, "%.?0+$", "")
   print( r )
+end
+
+function cronchk(arg)
+  function _roundMinutes(t, m)
+    intInterval = 60 * m
+    return math.floor(t/intInterval + 0.5) * intInterval;
+  end
+
+  function _matchCronParam(cfgParam, actVal)
+    if cfgParam==nil or cfgParam==''
+     or cfgParam=='*' or cfgParam=='a' or cfgParam=='x'
+    then return true end
+    for s in string.gmatch(cfgParam, '([^,]+)') do
+      p = string.find(s, "-")
+      if p==nil then
+        s = tonumber(s) -- tostring()
+        if actVal==s then return true end
+      else
+        s1 = tonumber(string.sub(s,1,p-1))
+        s2 = tonumber(string.sub(s,p+1,#s))
+        if (actVal>=s1 and actVal<=s2)
+         then return true end
+      end
+    end
+    return false
+  end
+
+  local t = os.time() -- print( os.date("%c", t) )
+  t = os.date("*t", _roundMinutes(t, 5))
+  print( t.year.."-"..t.month.."-"..t.day.." ("..t.wday..") "..t.hour..":"..t.min..":"..t.sec )
+
+  print(arg[1])
+  local f1 = io.open(arg[1],"r")
+  if f1~=nil then
+    repeat
+      line = f1:read()
+      if line==nil then break end
+      print(line)
+      local l_arg = {};
+      for s in string.gmatch(line, '([^ ]+)') do
+        table.insert(l_arg, s)
+      end
+      if ( l_arg[1]~="#"
+       and _matchCronParam(l_arg[1], t.min)
+       and _matchCronParam(l_arg[2], t.hour)
+       and _matchCronParam(l_arg[3], t.day)
+       and _matchCronParam(l_arg[4], t.month)
+       and _matchCronParam(l_arg[5], t.wday-1)
+      ) then
+        print("OK")
+        os.exit(0)
+      end
+    until (line==nil)
+    io.close(f1)
+  else
+    if ( _matchCronParam(arg[1], t.min)
+     and _matchCronParam(arg[2], t.hour)
+     and _matchCronParam(arg[3], t.day)
+     and _matchCronParam(arg[4], t.month)
+     and _matchCronParam(arg[5], t.wday-1)
+    ) then
+      print("OK")
+      os.exit(0)
+    end
+  end
+  os.exit(1)
 end
 
 function realpath(arg)
