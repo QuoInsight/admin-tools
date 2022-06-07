@@ -163,8 +163,7 @@ function cronchk(arg)
   t = os.date("*t", _roundMinutes(t, 5))
   print( t.year.."-"..t.month.."-"..t.day.." ("..t.wday..") "..t.hour..":"..t.min..":"..t.sec )
 
-  print(arg[1])
-  local f1 = io.open(arg[1],"r")
+  local f1 = nil; if arg[1]~=nil then f1 = io.open(arg[1],"r") end
   if f1~=nil then
     repeat
       line = f1:read()
