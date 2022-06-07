@@ -168,7 +168,7 @@ function cronchk(arg)
     repeat
       line = f1:read()
       if line==nil then break end
-      print(line)
+      if line:match('[^ -~\n\t]') then break end -- non-printable ascii characters
       local l_arg = {};
       for s in string.gmatch(line, '([^ ]+)') do
         table.insert(l_arg, s)
