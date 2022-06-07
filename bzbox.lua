@@ -148,11 +148,11 @@ function cronchk(arg)
       p = string.find(s, "-")
       if p==nil then
         s = tonumber(s) -- tostring()
-        if actVal==s then return true end
+        if (s~=nul and actVal==s) then return true end
       else
         s1 = tonumber(string.sub(s,1,p-1))
         s2 = tonumber(string.sub(s,p+1,#s))
-        if (actVal>=s1 and actVal<=s2)
+        if (s1~=nil and s2~=nil and actVal>=s1 and actVal<=s2)
          then return true end
       end
     end
