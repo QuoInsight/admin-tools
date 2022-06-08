@@ -5,7 +5,7 @@
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
 _,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?(.+)") -- "^@?.-([^\\/]+)$"
-_SupportedFunctions = {"bc", "cronchk", "install", "realpath", "sleep", "usleep"}
+_SupportedFunctions = {"bc", "cal", "cronchk", "install", "realpath", "sleep", "usleep"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
@@ -134,6 +134,27 @@ function bc(arg)
   print( r )
 end
 
+function cal(arg)
+  -- http://lua-users.org/wiki/DisplayCalendarInHtml
+  local t = os.time() -- print( os.date("%c", t) )
+  local d = os.date("*t", t);  local currentDay = d.day
+  d = os.date("*t", os.time{year=d.year, month=d.month+1, day=0})
+  print(string.format("%17s", d.year.."-"..d.month.."-"..d.day.." ("..(d.wday-1)..")" ))
+
+  local monthTitle = os.date('%B',t) .. " " .. d.year
+  print(string.format("%14s",monthTitle))
+  print("Su Mo Tu We Th Fr Sa")
+
+  local wday1 = (d.wday-d.day)%7
+  io.write(string.format("%"..(wday1*3).."s"," "))
+  for x=1,d.day do
+    io.write(string.format("%2s", x))
+    io.write( (x==currentDay) and "<" or " " )
+    if (x+wday1)%7==0 then io.write("\n") end
+  end
+  print("\n")
+end
+
 function cronchk(arg)
   function _roundMinutes(t, m)
     intInterval = 60 * m
@@ -161,7 +182,7 @@ function cronchk(arg)
 
   local t = os.time() -- print( os.date("%c", t) )
   t = os.date("*t", _roundMinutes(t, 5))
-  print( t.year.."-"..t.month.."-"..t.day.." ("..t.wday..") "..t.hour..":"..t.min..":"..t.sec )
+  print( t.year.."-"..t.month.."-"..t.day.." ("..(t.wday-1)..") "..t.hour..":"..t.min..":"..t.sec )
 
   local f1 = nil; if arg[1]~=nil then f1 = io.open(arg[1],"r") end
   if f1~=nil then
