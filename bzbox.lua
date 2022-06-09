@@ -1,6 +1,9 @@
 #!/usr/bin/lua
+--[[
 -- opkg install luasocket
 -- https://github.com/QuoInsight/admin-tools/blob/master/bzbox.lua
+-- https://docs.google.com/spreadsheets/d/1rIlh6w94jJNbWkvC8s46LnJ5uHgqMEIso9J3CHS-GpE/preview
+--]]
 
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
@@ -10,51 +13,6 @@ _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
 }
-
---[[
-ln -s /root/bzbx.lua /usr/bin/bc
-    [, [[, ar, arp, ash, awk, base64, basename, beep, 
-    blkid, blockdev, bootchartd, bunzip2, bzcat, bzip2, 
-    cal, cat, catv, chat, chattr, chgrp, chmod, chown, 
-    chpst, chroot, chrt, chvt, cksum, clear, cmp, comm, 
-    cp, cpio, crond, crontab, cttyhack, cut, dc, dd, 
-    deallocvt, depmod, devmem, diff, dirname, dmesg, 
-    dnsd, dos2unix, dpkg, dpkg-deb, du, dumpkmap, echo, 
-    ed, egrep, env, envdir, envuidgid, expand, expr, 
-    fakeidentd, false, fatattr, fbset, fbsplash, 
-    fdflush, fdformat, fdisk, fgconsole, fgrep, find, 
-    findfs, flash_lock, flash_unlock, flashcp, flock, 
-    fold, free, freeramdisk, fstrim, ftpd, ftpget, 
-    ftpput, fuser, getopt, grep, gunzip, gzip, hd, 
-    hdparm, head, hexdump, httpd, hwclock, ifconfig, 
-    ifdown, ifup, init, inotifyd, insmod, install, 
-    iostat, ip, ipaddr, ipcalc, iplink, iproute, 
-    iprule, iptunnel, less, linuxrc, ln, loadkmap, 
-    losetup, ls, lsattr, lsmod, lsof, lspci, lsusb, 
-    lzcat, lzma, lzop, lzopcat, makedevs, man, md5sum, 
-    mesg, mkdir, mkfifo, mknod, mkswap, mktemp, 
-    modinfo, modprobe, more, mpstat, mv, nanddump, 
-    nbd-client, nc, netstat, nice, nmeter, nohup, od, 
-    openvt, patch, pidof, ping, pipe_progress, pmap, 
-    powertop, printenv, printf, ps, pscan, pstree, pwd, 
-    pwdx, raidautorun, rdev, readlink, readprofile, 
-    realpath, renice, reset, resize, rev, rm, rmdir, 
-    rmmod, route, rpm, rpm2cpio, rtcwake, run-parts, 
-    runsv, runsvdir, rx, script, scriptreplay, sed, 
-    seq, setconsole, setkeycodes, setlogcons, 
-    setserial, setsid, setuidgid, sh, sha1sum, 
-    sha256sum, sha3sum, sha512sum, showkey, shuf, 
-    sleep, smemcap, softlimit, sort, split, 
-    start-stop-daemon, strings, stty, sum, sv, svlogd, 
-    switch_root, sync, sysctl, tac, tail, tar, tcpsvd, 
-    tee, test, tftp, tftpd, time, timeout, top, touch, 
-    tr, traceroute, true, truncate, ttysize, tunctl, 
-    tune2fs, udhcpc, udpsvd, uevent, uname, uncompress, 
-    unexpand, uniq, unix2dos, unlink, unlzma, unlzop, 
-    unxz, unzip, uptime, usleep, uudecode, uuencode, 
-    vconfig, vi, volname, watch, wc, wget, which, 
-    whoami, whois, xargs, xz, xzcat, yes, zcat
---]]
 
 function _about()
   print(string.format([[
