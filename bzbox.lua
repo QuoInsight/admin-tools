@@ -148,6 +148,8 @@ function cronchk(arg)
       line = f1:read()
       if line==nil then break end
       if line:match('[^ -~\n\t]') then break end -- non-printable ascii characters
+      line = line:gsub("^%s*(.-)%s*$", "%1") -- trim
+      if string.len(line) < 1 then line="#" end
       local l_arg = {};
       for s in string.gmatch(line, '([^ ]+)') do
         table.insert(l_arg, s)
