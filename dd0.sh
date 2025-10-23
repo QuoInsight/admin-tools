@@ -4,7 +4,7 @@
   exit
 }
 blksz=512
-if [ -f "$1" ] && [ `stat --printf="%s" "$1.dd0"` = "$blksz" ]; then
+if [ -f "$1" ] && [ "`stat --printf='%s' "$1.dd0"`" = "$blksz" ]; then
   echo "restoring data from .dd0"
   set -e ## exit immediately if any command fails
   dd if="$1.dd0" of="$1" bs=$blksz count=1 conv=notrunc
