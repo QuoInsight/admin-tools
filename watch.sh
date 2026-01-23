@@ -1,6 +1,6 @@
+#!/bin/sh
 
 function _watch() {
-  l=`stty size |awk '{print int($1-2)}'`
   s=15
   cmdln="$*"
   if (echo "$cmdln" |grep -q '^-n'); then
@@ -9,12 +9,14 @@ function _watch() {
   fi
   while true; do
     clear
-    x=`stty size |awk '{print int($2-35)}'`
-    c=$(echo "$cmdln" |awk -v x="$x" '{print substr($0,1,x)}')
+    y=`stty size |awk '{print int($1-2)}'`
+    x=`stty size |cut -d' ' -f2`
+    c=$(echo "$cmdln" |awk -v x="$x" '{print substr($0,1,x-35)}')
     d=`date +"%H:%M:%S"`
     echo "Every ${s}s: $c ... lastUpd: $d"
     echo
-    eval "$cmdln" |head -n $l |head -c -1 # trim/remove last newline char
+    eval "$cmdln" |head -n $y |awk "{print substr(\$0,1,$x)}" |head -c -1 # trim/remove last newline char
     sleep $s
   done
 }
+
