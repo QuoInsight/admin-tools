@@ -205,8 +205,9 @@ function watch(args)
   while true do
     print()
     os.execute("clear")
-    local y = tonumber(_exeCmd("stty size |cut -d' ' -f1"))-2
-    local x = tonumber(_exeCmd("stty size |cut -d' ' -f2"))-1
+    local sz = _exeCmd("stty size")
+    local y = tonumber(sz:match("^(%d+)"))-2
+    local x = tonumber(sz:match("(%d+)$"))-1
     local c = string.sub(cmdln, 1, x-35)
     print("Every "..s.."s: "..c.." ... lastUpd: "..os.date("%H:%M:%S"))
     local i = 0
