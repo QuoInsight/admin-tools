@@ -8,7 +8,7 @@
 _,_,Ver1,Ver2 = string.find(_VERSION, "Lua (%d+)%.(%d+)")
 _LuaVersionNumber = tonumber(Ver1.."."..Ver2);
 _,_,_LuaScriptSource = debug.getinfo(1).source:find("^@?(.+)") -- "^@?.-([^\\/]+)$"
-_SupportedFunctions = {"bc", "cal", "cronchk", "install", "realpath", "sleep", "usleep"}
+_SupportedFunctions = {"bc", "cal", "cronchk", "install", "realpath", "sleep", "usleep", "watch"}
 _UnsupportedFunctions = {
   "[, [[, ar, arp, ash, awk, base64, basename, beep, ...",
   "\n    ..., whoami, whois, xargs, xz, xzcat, yes, zcat"
@@ -193,6 +193,30 @@ end
 function usleep(arg)
   if arg[1]==nil then arg[1]=1 else arg[1]=arg[1]/1000 end
   sleep(arg)
+end
+
+function watch(args)
+  local s = 15
+  local cmdln = table.concat(args," "):gsub("^%s*(.-)$","%1") --trim
+  if cmdln:find("^-n") then
+    s = cmdln:match("^-n%s*(%d+)")
+    cmdln = cmdln:gsub("^-n%s*%d+%s*", "")
+  end
+  while true do
+    print()
+    os.execute("clear")
+    local y = tonumber(_exeCmd("stty size |cut -d' ' -f1"))-2
+    local x = tonumber(_exeCmd("stty size |cut -d' ' -f2"))-1
+    local c = string.sub(cmdln, 1, x-35)
+    print("Every "..s.."s: "..c.." ... lastUpd: "..os.date("%H:%M:%S"))
+    local i = 0
+    for line in _exeCmd(cmdln):gmatch("([^\n]*)\n") do
+      i = i + 1
+      io.write("\n"..line:sub(1,x))
+      if i>=y then break end
+    end
+    sleep({s})
+  end
 end
 
 -- main() --
