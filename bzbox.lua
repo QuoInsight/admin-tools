@@ -203,13 +203,10 @@ function watch(args)
     cmdln = cmdln:gsub("^-n%s*%d+%s*", "")
   end
   while true do
-    print()
-    os.execute("clear")
-    local sz = _exeCmd("stty size")
-    local y = tonumber(sz:match("^(%d+)"))-2
-    local x = tonumber(sz:match("(%d+)$"))-1
-    local c = string.sub(cmdln, 1, x-35)
-    print("Every "..s.."s: "..c.." ... lastUpd: "..os.date("%H:%M:%S"))
+    print() ; os.execute("clear")
+    local y,x = _exeCmd("stty size"):match("(%d+)%s+(%d+)")
+    y = tonumber(y)-2 ; x = tonumber(x)-1
+    print("Every "..s.."s: "..string.sub(cmdln, 1, x-35).." ... lastUpd: "..os.date("%H:%M:%S"))
     local i = 0
     for line in _exeCmd(cmdln):gmatch("([^\n]*)\n") do
       i = i + 1
