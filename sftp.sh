@@ -13,14 +13,16 @@ USR=user
 OPT="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 (ssh -V 2>&1 | grep -iq "dropbear") && OPT='-y'
 
-echo "${USR}@${HST}:${PRT} => $*"
+echo "${USR}@${HST}:${PRT} => $@"
 
 _ssh() {
-  eval "ssh $OPT -p ${PRT} ${USR}@${HST} '$1'"
+  cmdln="ssh $OPT -p ${PRT} ${USR}@${HST} '$@'" #; echo "$cmdln"
+  eval "$cmdln"
 }
 
 _scp() {
-  cmdln="scp $OPT -O -P ${PRT} '$1' '$2'" #; echo "$cmdln"
+  [ "$OPT" = "-y" ] && opt2="-S ~/dbclient-y" || opt2="-O $OPT"
+  cmdln="scp $opt2 -P ${PRT} '$1' '$2'" #; echo "$cmdln"
   eval "$cmdln"
 }
 
@@ -71,12 +73,12 @@ elif [ "$1" = "upload" ]; then
 elif [ "$1" = "rm" ]; then
 
   read -p "Proceed for deletion, are you sure?! (y/N): " CONFIRM
-  [ "$CONFIRM" = "y" ] && _ssh "$*" || echo "aborted."
+  [ "$CONFIRM" = "y" ] && _ssh "$@" || echo "aborted."
 
 #elif (echo ",ls,ll,pwd,mkdir,rmdir,cat," | grep -q ",$1,"); then
 elif [ ! -z "$1" ]; then
 
-  _ssh "$*"
+  _ssh "$@"
 
 else
 
