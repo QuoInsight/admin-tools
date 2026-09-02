@@ -29,11 +29,14 @@ _fish() {
 }
 _scp() {
   f1="$2" ; f2="$3" ; r="${USR}@${HST}:"
+  [ -z "$f2" ] && f2="${f1##*/}" ## f2=`basename "$f1"`
+  (echo "$f2" | grep -q '/$') && f2="$f2${f1##*/}"
   [ "$OPT" = "-y" ] && opt2="-S ~/dbclient-y" || opt2="-O $OPT"
   if [ "$1" = "get" ]; then
     abortFileExists "$f2"
     f1="$r$f1"
   else
+    echo "uploading [$1] to [$2] ... "
     abortFileExists "$f2" "remote"
     f2="$r$f2"
   fi
@@ -62,10 +65,8 @@ if [ "$1" = "get" ] || [ "$1" = "download" ]; then
       eval "'$0' get '$2$line' '$3'"
     done
   else
-    [ -z "$3" ] && localpath="${2##*/}" || localpath="$3"
-    (echo "$3" | grep -q '/$') && localpath="$3$localpath"
-    #_fish "get" "$2" "$localpath"
-    _scp "get" "$2" "$localpath"
+    #_fish "get" "$2" "$3"
+    _scp "get" "$2" "$3"
   fi
 
 elif [ "$1" = "put" ] || [ "$1" = "append" ]; then
@@ -79,13 +80,9 @@ elif [ "$1" = "put" ] || [ "$1" = "append" ]; then
 
 elif [ "$1" = "upload" ]; then
 
-  [ -z "$2" ] && filepath="$0" || filepath="$2"
-  [ -z "$3" ] && remotefile=$(basename "$filepath") || remotefile="$3"
-  (echo "$3" | grep -q '/$') && remotefile="$3$remotefile"
-  echo "uploading [$filepath] to [$remotefile] ... "
-
-  #_fish "put" "$filepath" "$remotefile"
-  _scp "put" "$filepath" "$remotefile"
+  [ -z "$2" ] && f1="$0" || f1="$2"
+  #_fish "put" "$f1" "$3"
+  _scp "put" "$f1" "$3"
 
 elif [ "$1" = "rm" ]; then
 
