@@ -40,7 +40,7 @@ _scp() {
     abortFileExists "$f2" "remote"
     f2="$r$f2"
   fi
-  cmdln="scp $opt2 -P ${PRT} '$f1' '$f2'" ; echo "$cmdln"
+  cmdln="scp $opt2 -p -P ${PRT} '$f1' '$f2'" ; echo "$cmdln"
   eval "$cmdln"
 }
 
