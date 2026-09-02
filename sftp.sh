@@ -59,12 +59,13 @@ if [ "$1" = "get" ] || [ "$1" = "download" ]; then
     echo "Folder '$2'"
     eval "'$0' ls -p '$2'" | grep -v '/$' | while IFS= read -r line; do
       # echo ">> $line"
-      eval "'$0' get '$2$line'"
+      eval "'$0' get '$2$line' '$3'"
     done
   else
-    filename="${2##*/}"
-    #_fish "get" "$2" "$filename"
-    _scp "get" "$2" "$filename"
+    [ -z "$3" ] && localpath="${2##*/}" || localpath="$3"
+    (echo "$3" | grep -q '/$') && localpath="$3$localpath"
+    #_fish "get" "$2" "$localpath"
+    _scp "get" "$2" "$localpath"
   fi
 
 elif [ "$1" = "put" ] || [ "$1" = "append" ]; then
