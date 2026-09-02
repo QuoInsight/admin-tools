@@ -31,7 +31,7 @@ _scp() {
   f1="$2" ; f2="$3" ; r="${USR}@${HST}:"
   [ -z "$f2" ] && f2="${f1##*/}" ## f2=`basename "$f1"`
   (echo "$f2" | grep -q '/$') && f2="$f2${f1##*/}"
-  [ "$OPT" = "-y" ] && opt2="-S ~/dbclient-y" || opt2="-O $OPT"
+  [ "$OPT" = "-y" ] && opt2="-S ~/dbclient-y" || opt2="-O $OPT" ## dbclient -y "$@"
   if [ "$1" = "get" ]; then
     abortFileExists "$f2"
     f1="$r$f1"
@@ -56,7 +56,17 @@ abortFileExists() {
   return 0
 }
 
-if [ "$1" = "get" ] || [ "$1" = "download" ]; then
+if [ "$1" = "sftp" ]; then
+
+  cmdln="sftp $OPT -P $PRT ${USR}@${HST}" ; echo "$cmdln"
+  eval "$cmdln"
+
+elif [ "$1" = "ssh" ]; then
+
+  cmdln="ssh $OPT -p ${PRT} ${USR}@${HST}" ; echo "$cmdln"
+  eval "$cmdln"
+
+elif [ "$1" = "get" ] || [ "$1" = "download" ]; then
 
   if (echo "$2" | grep -q '/$'); then
     echo "Folder '$2'"
