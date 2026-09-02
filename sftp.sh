@@ -6,6 +6,8 @@
 # nor does it feature a built-in internal-sftp engine.
 # sftp -P 22 user@127.0.0.1 # /usr/libexec/sftp-server not found
 # sftp -s internal-sftp -P 22 user@127.0.0.1 ## failed
+# below is an alternative to lftp -p 22 'fish://user:@127.0.0.1'
+# FISH => Files transferred over SHell
 
 HST=127.0.0.1
 PRT=22
@@ -19,16 +21,35 @@ _ssh() {
   cmdln="ssh $OPT -p ${PRT} ${USR}@${HST} '$@'" #; echo "$cmdln"
   eval "$cmdln"
 }
-
+_fish() {
+  fish="ssh $OPT -p ${PRT} ${USR}@${HST}" # Files transferred over SHell (FISH)
+  [ "$1" = "get" ] && cmdln="$fish 'cat \"$2\"' > '$3'"  || cmdln="cat '$2' | $fish 'cat > \"$3\"'" ; echo "$cmdln"
+  eval "$cmdln"
+}
 _scp() {
+  f1="$2" ; f2="$3" ; r="${USR}@${HST}:"
   [ "$OPT" = "-y" ] && opt2="-S ~/dbclient-y" || opt2="-O $OPT"
-  cmdln="scp $opt2 -P ${PRT} '$1' '$2'" #; echo "$cmdln"
+  if [ "$1" = "get" ]; then
+    abortFileExists "$f2"
+    f1="$r$f1"
+  else
+    abortFileExists "$f2" "remote"
+    f2="$r$f2"
+  fi
+  cmdln="scp $opt2 -P ${PRT} '$f1' '$f2'" ; echo "$cmdln"
   eval "$cmdln"
 }
 
-isRemoteFileExists() {
-  EXS=`_ssh "test -e '$1' && echo 'exists'"`
-  [ -z "$EXS" ] && return 1 || return 0
+abortFileExists() {
+  if [ "$2" = "remote" ]; then
+    EXS=`_ssh "test -e '$1' && echo 'Remote'"`
+  elif [ -e "$1" ]; then
+    EXS="Local"
+  fi
+  #[ -z "$EXS" ] && return 1 || return 0
+  [ ! -z "$EXS" ] && read -p "$EXS file '$1' exists! Overwrite? (y/N): " CONFIRM || CONFIRM="y"
+  [ "$CONFIRM" = "y" ] || { echo "aborted."; exit; }
+  return 0
 }
 
 if [ "$1" = "get" ] || [ "$1" = "download" ]; then
@@ -40,35 +61,29 @@ if [ "$1" = "get" ] || [ "$1" = "download" ]; then
       eval "'$0' get '$2$line'"
     done
   else
-    filename="${2##*/}" ; echo -n "Local File: '$filename' "
-    [ -e "$filename" ] && read -p "already exists. Overwrite? (y/N): " CONFIRM || CONFIRM="y"
-    [ "$CONFIRM" = "y" ] && _scp "${USR}@${HST}:$2" "$filename" || echo "aborted."
+    filename="${2##*/}"
+    #_fish "get" "$2" "$filename"
+    _scp "get" "$2" "$filename"
   fi
 
 elif [ "$1" = "put" ] || [ "$1" = "append" ]; then
 
   [ "$1" = "put" ] && cmdln="cat > '$2'" || cmdln="cat >> '$2'"
   if [ -t 0 ]; then ## Interactive terminal (No data redirected)
-    echo -n "Remote File: '$2' "
-    isRemoteFileExists "$2" && EXS="exists"
-    echo "$EXS"
-    [ ! -z "$EXS" ] && read -p "Overwrite? (y/N): " CONFIRM || CONFIRM="y"
-    [ "$CONFIRM" = "y" ] && _ssh "$cmdln" || echo "aborted."
-  else ## redirected, will not support custom prompt !
-    _ssh "$cmdln"
+    abortFileExists "$2" "remote"
+  #else # redirected, will not support custom prompt !
   fi
+  _ssh "$cmdln"
 
 elif [ "$1" = "upload" ]; then
 
   [ -z "$2" ] && filepath="$0" || filepath="$2"
   [ -z "$3" ] && remotefile=$(basename "$filepath") || remotefile="$3"
   (echo "$3" | grep -q '/$') && remotefile="$3$remotefile"
+  echo "uploading [$filepath] to [$remotefile] ... "
 
-  echo -n "uploading [$filepath] to [$remotefile] ... "
-  isRemoteFileExists "$remotefile" && EXS="Remote file exists!"
-  echo "$EXS"
-  [ ! -z "$EXS" ] && read -p "Overwrite? (y/N): " CONFIRM || CONFIRM="y"
-  [ "$CONFIRM" = "y" ] && _scp "$filepath" "${USR}@${HST}:$remotefile" || echo "aborted."
+  #_fish "put" "$filepath" "$remotefile"
+  _scp "put" "$filepath" "$remotefile"
 
 elif [ "$1" = "rm" ]; then
 
@@ -82,14 +97,13 @@ elif [ ! -z "$1" ]; then
 
 else
 
-  sftp="./sftp.sh"
   cat << EOT
  usage:
-  $sftp ls
-  $sftp get test.txt
-  $sftp upload ./test.txt /dav/test.txt
-  date | $sftp put test.txt
-  date | $sftp append test.txt
+  $0 ls
+  $0 get test.txt
+  $0 upload ./test.txt /dav/test.txt
+  date | $0 put test.txt
+  date | $0 append test.txt
 EOT
 
 fi
