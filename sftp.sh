@@ -15,6 +15,7 @@ USR=user
 OPT="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 (ssh -V 2>&1 | grep -iq "dropbear") && OPT='-y'
 
+[ -e "sftp.h" ] && . ./sftp.h
 echo "${USR}@${HST}:${PRT} => $@"
 
 _ssh() {
