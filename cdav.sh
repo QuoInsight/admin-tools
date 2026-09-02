@@ -72,14 +72,13 @@ elif [ "$1" = "rm" ]; then
 
 else
 
-  cdav="./cdav.sh"
   cat << EOT
  usage:
-  $cdav ls
-  $cdav get test.txt
-  $cdav upload ./test.txt /dav/test.txt
-  date | $cdav put test.txt
-  date | $cdav append test.txt
+  $0 ls
+  $0 get test.txt
+  $0 upload ./test.txt /dav/test.txt
+  date | $0 put test.txt
+  date | $0 append test.txt
 EOT
 
 fi
