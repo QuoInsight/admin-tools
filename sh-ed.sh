@@ -14,11 +14,12 @@ evl() {
 
 if [ "$1" = "sed" ] && [ $# -le 2 ]; then
   sed_hlp=$(cat <<EOT
-    5,10p     # shows line# 5 to 10
-    5c <text> # replace line#5 with <text>
-    5i <text> # insert <text> before line#5
-    5a <text> # append <text> after line#5
-    5d        # delete line#5
+    5,10p      # shows line# 5 to 10
+    5c <text>  # replace line#5 with <text>
+    5i <text>  # insert <text> before line#5
+    5a <text>  # append <text> after line#5
+    5d         # delete line#5
+    / <regex>  # search for <regex>
 EOT
 )
   if [ "$2" = "" ] || [ "$2" = "?" ]; then
@@ -48,11 +49,14 @@ EOT
         ## set -- $cmdln ## will not preserve extra spaces
         c1="${cmdln%% *}" ; c2="${cmdln#* }" ## split only at 1st space, will give the entire string when there is no space!! ## "$(echo "$cmdln" | cut -d' ' -f1)" ; "$(echo "$cmdln" | cut -d' ' -f2-)"
         [ "$c2" = "$cmdln" ] && c2="" ## no better way for this !!?
-        if [ -n "$c2" ]; then
-          evl "test -s '$filepath' && sed -i '$c1\\$c2' '$filepath' || echo '$c2' > '$filepath'"
+        if [ "$c1" = "/" ]; then
+          c2="$(echo "$c1" | sed 's/^ *$//')"
+          evl "sed -n '/$c2/{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
         elif ( echo "$c1" | grep -q 'p$' ); then
-          n=$(echo "$c1" | sed 's/.$//')
-          evl "sed -n '${n}{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
+          c1="$(echo "$c1" | sed 's/.$//')"
+          evl "sed -n '${c1}{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
+        elif [ -n "$c2" ]; then
+          evl "test -s '$filepath' && sed -i '$c1\\$c2' '$filepath' || echo '$c2' > '$filepath'"
         else
           evl "sed -i '$cmdln' '$filepath'"
         fi
