@@ -37,7 +37,7 @@ EOT
     p1=$(printf "$p1 [$?]")
     printf "1> $p1\n"
     if (printf "%b\0" "$p1" | grep -q '^sed:.*No such file.*\[.\]$'); then
-      touch "$filepath" && echo ">> new file created"
+      evl "touch '$filepath'" && echo ">> new file created"
     fi
     while true; do
       printf "[$filepath] # "
@@ -59,7 +59,7 @@ EOT
           c1="$(echo "$c1" | sed 's/.$//')"
           evl "sed -i '${c1}{H;d}; ${c2}G' '$filepath'" ## this will actually adds a new blank line in between !
         elif [ -n "$c2" ]; then
-          evl "test -s '$filepath' && sed -i '$c1\\$c2' '$filepath' || echo '$c2' > '$filepath'"
+          evl "sed -i '$c1\\$c2' '$filepath' 2>/dev/null || test -s '$filepath' || echo '$c2' > '$filepath'"
         else
           evl "sed -i '$cmdln' '$filepath'"
         fi
