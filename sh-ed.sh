@@ -14,11 +14,12 @@ evl() {
 
 if [ "$1" = "sed" ] && [ $# -le 2 ]; then
   sed_hlp=$(cat <<EOT
-    5,10p      # shows line# 5 to 10
+    5,10p      # shows line#5-10
     5c <text>  # replace line#5 with <text>
     5i <text>  # insert <text> before line#5
     5a <text>  # append <text> after line#5
     5d         # delete line#5
+    2,3d 5     # cut line#2-3 and paste after line#5
     / <regex>  # search for <regex>
 EOT
 )
@@ -54,6 +55,9 @@ EOT
         elif (echo "$c1" | grep -q 'p$'); then
           c1="$(echo "$c1" | sed 's/.$//')"
           evl "sed -n '${c1}{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
+        elif (echo "$c1" | grep -q 'd$') && [ -n "$c2" ]; then
+          c1="$(echo "$c1" | sed 's/.$//')"
+          evl "sed -i '${c1}{H;d}; ${c2}G' '$filepath'" ## this will actually adds a new blank line in between !
         elif [ -n "$c2" ]; then
           evl "test -s '$filepath' && sed -i '$c1\\$c2' '$filepath' || echo '$c2' > '$filepath'"
         else
