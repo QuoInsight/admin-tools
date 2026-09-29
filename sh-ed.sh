@@ -28,6 +28,8 @@ $sed_hlp
 EOT
   else
     filepath="$2"
+    #(echo "$filepath" | grep -q '^/tmp/') || filepath="/tmp/$filepath"
+    #filepath="$(echo "$filepath"|sed 's|//|/|g')"
     evl "ls -l '$filepath'"
     p1=$(evl "sed -n '1p' '$filepath' 2>&1")
     p1=$(printf "$p1 [$?]")
