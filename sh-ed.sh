@@ -60,7 +60,7 @@ EOT
             evl "test -s '$filepath' || echo '$c2' > '$filepath' && echo '>> new file created'"
           else
             printf "1> $p1\n"
-          fi          
+          fi
         else
           evl "sed -i '$cmdln' '$filepath'"
         fi
