@@ -32,13 +32,7 @@ EOT
     filepath="$2"
     #(echo "$filepath" | grep -q '^/tmp/') || filepath="/tmp/$filepath"
     #filepath="$(echo "$filepath"|sed 's|//|/|g')"
-    evl "ls -l '$filepath'"
-    p1=$(evl "sed -n '1p' '$filepath' 2>&1")
-    p1=$(printf "$p1 [$?]")
-    printf "1> $p1\n"
-    if (printf "%b\0" "$p1" | grep -q '^sed:.*No such file.*\[.\]$'); then
-      evl "touch '$filepath'" && echo ">> new file created"
-    fi
+    evl "ls -l '$filepath'" #evl "sed -n '1p' '$filepath' 2>&1"
     while true; do
       printf "[$filepath] # "
       read -r cmdln
@@ -59,7 +53,14 @@ EOT
           c1="$(echo "$c1" | sed 's/.$//')"
           evl "sed -i '${c1}{H;d}; ${c2}G' '$filepath'" ## this will actually adds a new blank line in between !
         elif [ -n "$c2" ]; then
-          evl "sed -i '$c1\\$c2' '$filepath' 2>/dev/null || test -s '$filepath' || echo '$c2' > '$filepath'"
+          #evl "sed -i '$c1\\$c2' '$filepath' 2>/dev/null || test -s '$filepath' || echo '$c2' > '$filepath'"
+          p1=$(evl "sed -i '$c1\\$c2' '$filepath' 2>&1")
+          p1=$(printf "$p1 [$?]")
+          if (printf "%b\0" "$p1" | grep -q '^sed:.*No such file.*\[.\]$'); then
+            evl "test -s '$filepath' || echo '$c2' > '$filepath' && echo '>> new file created'"
+          else
+            printf "1> $p1\n"
+          fi          
         else
           evl "sed -i '$cmdln' '$filepath'"
         fi
