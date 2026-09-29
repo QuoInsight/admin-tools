@@ -50,9 +50,8 @@ EOT
         c1="${cmdln%% *}" ; c2="${cmdln#* }" ## split only at 1st space, will give the entire string when there is no space!! ## "$(echo "$cmdln" | cut -d' ' -f1)" ; "$(echo "$cmdln" | cut -d' ' -f2-)"
         [ "$c2" = "$cmdln" ] && c2="" ## no better way for this !!?
         if [ "$c1" = "/" ]; then
-          c2="$(echo "$c1" | sed 's/^ *$//')"
           evl "sed -n '/$c2/{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
-        elif ( echo "$c1" | grep -q 'p$' ); then
+        elif (echo "$c1" | grep -q 'p$'); then
           c1="$(echo "$c1" | sed 's/.$//')"
           evl "sed -n '${c1}{=;p}' '$filepath'" | paste -d'>' - - | sed 's|^\([0-9]*>\)\(.*\)|\1 \2|'
         elif [ -n "$c2" ]; then
