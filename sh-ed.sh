@@ -26,11 +26,11 @@ EOT
   if [ "$2" = "" ] || [ "$2" = "?" ]; then
     cat <<EOT
   sed <filepath> # start interactive mode
-  ## note: sed -i will actually create a new file instead of keeping the original !!
+  ## note: sed -i will create a new file instead of keeping the original !!
 $sed_hlp
 EOT
   else
-    echo "  ## note: sed -i will actually create a new file instead of keeping the original !!"
+    echo "## note: sed -i will actually replace the original !!"
     filepath="$2"
     #(echo "$filepath" | grep -q '^/tmp/') || filepath="/tmp/$filepath"
     #filepath="$(echo "$filepath"|sed 's|//|/|g')"
